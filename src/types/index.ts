@@ -19,6 +19,7 @@ export interface Message {
   id: string;
   chatId: string;
   senderId: string;
+  senderName?: string;
   kind: 'text' | 'emoji' | 'object';
   content: string;
   createdAt: number;
@@ -36,6 +37,7 @@ export interface RtcSignal {
 export type CallType = 'audio' | 'video';
 
 export type WsEvent =
+  | 'auth:me'
   | 'auth:login'
   | 'auth:register'
   | 'chat:list'
@@ -49,4 +51,5 @@ export type WsEvent =
   | 'message:receive'
   | 'message:list'
   | 'rtc:signal'
-  | 'presence:update';
+  | 'presence:update'
+  | 'error';

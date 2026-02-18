@@ -2,7 +2,20 @@ import { User } from '@/types';
 import { wsService } from './websocket';
 
 const TOKEN_KEY = 'chat.jwt';
-const WS_BASE = import.meta.env.VITE_WS_URL || 'ws://localhost:8443/ws/chat';
+
+function resolveWsBaseUrl() {
+  const configuredUrl = import.meta.env.VITE_WS_URL;
+  if (configuredUrl) return configuredUrl;
+
+  if (typeof window !== 'undefined') {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    return `${protocol}//${window.location.hostname}:8443/ws/chat`;
+  }
+
+  return 'ws://localhost:8443/ws/chat';
+}
+
+const WS_BASE = resolveWsBaseUrl();
 
 type AuthResponse = {
   token: string;
@@ -90,4 +103,10 @@ export async function registerWithWs(username: string, displayName: string, emai
 export function logoutAuth() {
   localStorage.removeItem(TOKEN_KEY);
   wsService.disconnect();
+}
+
+export async function requestCurrentUser(): Promise<User> {
+  await connectWithToken();
+  wsService.send('auth:me', {});
+  return wsService.once<User>('auth:me', 12000);
 }
