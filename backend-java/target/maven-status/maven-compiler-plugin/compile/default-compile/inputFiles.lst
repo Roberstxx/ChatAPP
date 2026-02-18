@@ -1,0 +1,16 @@
+C:\Users\roberto\Desktop\connect-chat\backend-java\src\main\java\com\connectchat\config\SecurityConfig.java
+C:\Users\roberto\Desktop\connect-chat\backend-java\src\main\java\com\connectchat\config\WebSocketConfig.java
+C:\Users\roberto\Desktop\connect-chat\backend-java\src\main\java\com\connectchat\ConnectChatApplication.java
+C:\Users\roberto\Desktop\connect-chat\backend-java\src\main\java\com\connectchat\dto\AuthLoginRequest.java
+C:\Users\roberto\Desktop\connect-chat\backend-java\src\main\java\com\connectchat\dto\AuthRegisterRequest.java
+C:\Users\roberto\Desktop\connect-chat\backend-java\src\main\java\com\connectchat\dto\AuthResponse.java
+C:\Users\roberto\Desktop\connect-chat\backend-java\src\main\java\com\connectchat\dto\RtcSignal.java
+C:\Users\roberto\Desktop\connect-chat\backend-java\src\main\java\com\connectchat\dto\WsFrame.java
+C:\Users\roberto\Desktop\connect-chat\backend-java\src\main\java\com\connectchat\model\User.java
+C:\Users\roberto\Desktop\connect-chat\backend-java\src\main\java\com\connectchat\model\UserEntity.java
+C:\Users\roberto\Desktop\connect-chat\backend-java\src\main\java\com\connectchat\repository\UserRepository.java
+C:\Users\roberto\Desktop\connect-chat\backend-java\src\main\java\com\connectchat\security\JwtService.java
+C:\Users\roberto\Desktop\connect-chat\backend-java\src\main\java\com\connectchat\service\AuthService.java
+C:\Users\roberto\Desktop\connect-chat\backend-java\src\main\java\com\connectchat\service\ChatDataService.java
+C:\Users\roberto\Desktop\connect-chat\backend-java\src\main\java\com\connectchat\ws\ChatWebSocketHandler.java
+C:\Users\roberto\Desktop\connect-chat\backend-java\src\main\java\com\connectchat\ws\WsSessionRegistry.java

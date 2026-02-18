@@ -1,0 +1,17 @@
+com\connectchat\dto\AuthResponse.class
+com\connectchat\dto\RtcSignal.class
+com\connectchat\service\AuthService.class
+com\connectchat\security\JwtService.class
+com\connectchat\config\SecurityConfig.class
+com\connectchat\config\WebSocketConfig.class
+com\connectchat\dto\AuthLoginRequest.class
+com\connectchat\dto\AuthRegisterRequest.class
+com\connectchat\ConnectChatApplication.class
+com\connectchat\ws\WsSessionRegistry.class
+com\connectchat\dto\WsFrame.class
+com\connectchat\model\UserEntity.class
+com\connectchat\model\User.class
+com\connectchat\service\ChatDataService.class
+com\connectchat\config\WebSocketConfig$TokenHandshakeInterceptor.class
+com\connectchat\ws\ChatWebSocketHandler.class
+com\connectchat\repository\UserRepository.class
