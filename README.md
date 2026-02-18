@@ -1,4 +1,4 @@
-# Connect Chat — Guía **súper detallada** para clonar, configurar y ejecutar (PC servidor + celulares en red local)
+# KaapehChat — Guía **súper detallada** para clonar, configurar y ejecutar (PC servidor + celulares en red local)
 
 > Objetivo: que **cualquier persona** pueda clonar este repo y levantarlo sin errores comunes, incluyendo base de datos, variables de entorno, uso por IP local y verificación completa de funcionamiento.
 
@@ -58,7 +58,7 @@ Flujo general:
 
 ```bash
 git clone <URL_DE_TU_REPO>
-cd ChatAPP
+cd KaapehChat_Java
 npm install
 ```
 
@@ -361,3 +361,8 @@ Si quieres, en otro commit te puedo dejar también:
 - archivo `.env.example` listo para copiar,
 - script para levantar backend con variables en un solo comando,
 - y una guía de despliegue LAN + internet (ngrok/reverse proxy) paso a paso.
+
+
+## Autor
+
+- **KaapehChat**
