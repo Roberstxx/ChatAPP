@@ -72,6 +72,14 @@ Crea `/.env` en la raíz:
 VITE_WS_URL=ws://localhost:8443/ws/chat
 ```
 
+Para abrir la app desde otros dispositivos en tu red local (teléfono/tablet), usa la IP del servidor:
+
+```env
+VITE_WS_URL=ws://192.168.1.50:8443/ws/chat
+```
+
+> Si no defines `VITE_WS_URL`, el frontend ahora intenta conectarse al mismo host donde abriste la app (`ws://<host>:8443/ws/chat`), útil para pruebas LAN.
+
 Si habilitas TLS en backend, usa:
 
 ```env
@@ -151,7 +159,11 @@ npm run dev
 ```
 
 Abre:
-- `http://localhost:5173`
+- `http://localhost:8080`
+
+Para pruebas en celular dentro de la red local:
+- `http://<IP-DE-TU-PC>:8080`
+- Ejemplo: `http://192.168.1.50:8080`
 
 ---
 
@@ -181,6 +193,7 @@ Revisa en este orden:
 - Asegura que `VITE_WS_URL` apunte al backend correcto.
 - Borra token viejo del navegador (DevTools > Application > Local Storage > `chat.jwt`) y vuelve a intentar login.
 - Verifica que backend y frontend estén en los puertos esperados (`8443` y `5173`).
+- Si abres la app en teléfono y el frontend está en `http://<IP>:8080`, no uses `localhost` en `VITE_WS_URL`; usa esa misma IP para WebSocket.
 
 ### C) “Access denied for user”
 
