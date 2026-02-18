@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
 import { User, Chat, Message, CallType } from '@/types';
 import { wsService } from '@/services/websocket';
-import { connectWithToken, logoutAuth } from '@/services/auth';
+import { connectWithToken, getStoredToken, logoutAuth, requestCurrentUser } from '@/services/auth';
+import { toast } from '@/components/ui/sonner';
 
 interface AppState {
   user: User | null;
@@ -53,6 +54,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
   });
   const [allUsers, setAllUsers] = useState<User[]>([]);
 
+  useEffect(() => {
+    if (typeof Notification === 'undefined') return;
+    if (Notification.permission === 'default') {
+      void Notification.requestPermission();
+    }
+  }, []);
+
   const loadChats = useCallback(async () => {
     wsService.send('chat:list', {});
     const chats = await wsService.once<Chat[]>('chat:list', 12000);
@@ -78,6 +86,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const offMessage = wsService.on('message:receive', (incoming: Message) => {
       setState((s) => {
         const deduped = s.messages.some((m) => m.id === incoming.id) ? s.messages : [...s.messages, incoming];
+        const chat = s.chats.find((c) => c.id === incoming.chatId);
+        const sender = chat?.members.find((member) => member.id === incoming.senderId);
+
+        if (incoming.senderId !== s.user?.id) {
+          const senderName = sender?.displayName || 'Usuario';
+          const chatName = chat?.title || 'Chat';
+
+          if (document.visibilityState !== 'visible') {
+            toast(`${senderName} escribió en ${chatName}`, {
+              description: incoming.content,
+            });
+          }
+
+          if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+            new Notification(`${senderName} · ${chatName}`, {
+              body: incoming.content,
+            });
+          }
+        }
+
         return {
           ...s,
           messages: deduped,
@@ -118,6 +146,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setState((s) => {
         if (signal?.type === 'offer' && signal?.payload?.kind === 'invite') {
           if (s.inCall) return s;
+          const incomingChat = s.chats.find((chat) => chat.id === signal.chatId);
+          const caller = incomingChat?.members.find((member) => member.id === signal.fromUserId);
+
+          toast(`Llamada entrante ${signal.callType === 'video' ? 'de video' : 'de voz'}`, {
+            description: `${caller?.displayName || 'Usuario'} · ${incomingChat?.title || 'Chat'}`,
+          });
+
+          if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+            new Notification(`Llamada entrante ${signal.callType === 'video' ? 'de video' : 'de voz'}`, {
+              body: `${caller?.displayName || 'Usuario'} · ${incomingChat?.title || 'Chat'}`,
+            });
+          }
+
           return {
             ...s,
             incomingCall: {
@@ -161,6 +202,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
       offRtcSignal();
     };
   }, []);
+
+  useEffect(() => {
+    const restoreSession = async () => {
+      const token = getStoredToken();
+      if (!token) return;
+
+      try {
+        const currentUser = await requestCurrentUser();
+        setState((s) => ({ ...s, user: currentUser }));
+        await Promise.all([loadUsers(), loadChats()]);
+      } catch {
+        logoutAuth();
+      }
+    };
+
+    void restoreSession();
+  }, [loadChats, loadUsers]);
 
   const login = useCallback(async (user: User) => {
     await connectWithToken();

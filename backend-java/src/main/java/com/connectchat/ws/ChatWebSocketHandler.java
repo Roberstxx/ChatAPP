@@ -48,6 +48,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
       switch (event) {
         case "auth:register" -> handleRegister(session, data);
         case "auth:login" -> handleLogin(session, data);
+        case "auth:me" -> handleAuthMe(session);
         case "chat:list" -> handleChatList(session);
         case "user:list" -> handleUserList(session);
         case "message:list" -> handleMessageList(session, data);
@@ -91,6 +92,11 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
   private void handleChatList(WebSocketSession session) throws IOException {
     var userId = requireUserId(session);
     sendEvent(session, "chat:list", chatDataService.listChatsForUser(userId));
+  }
+
+  private void handleAuthMe(WebSocketSession session) throws IOException {
+    String userId = requireUserId(session);
+    sendEvent(session, "auth:me", chatDataService.userById(userId));
   }
 
   private void handleUserList(WebSocketSession session) throws IOException {
@@ -151,7 +157,16 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     String userId = requireUserId(session);
     String status = data.path("status").asText("online");
     chatDataService.updateUserStatus(userId, status);
-    sendEvent(session, "presence:update", Map.of("userId", userId, "status", status));
+    var payload = Map.of("userId", userId, "status", status);
+    for (var member : chatDataService.listUsers()) {
+      var targetUserId = (String) member.get("id");
+      registry.byUserId(targetUserId).ifPresent(ws -> {
+        try {
+          sendEvent(ws, "presence:update", payload);
+        } catch (IOException ignored) {
+        }
+      });
+    }
   }
 
   private void relayRtcSignal(JsonNode data) throws IOException {

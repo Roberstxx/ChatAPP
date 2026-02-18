@@ -99,10 +99,11 @@ public class ChatDataService {
     int safeLimit = Math.max(1, Math.min(limit, 500));
     return jdbc.query(
         """
-            SELECT id, chatId, senderId, kind, content, createdAt
-            FROM messages
-            WHERE chatId = ?
-            ORDER BY createdAt DESC
+            SELECT m.id, m.chatId, m.senderId, u.displayName AS senderName, m.kind, m.content, m.createdAt
+            FROM messages m
+            JOIN users u ON u.id = m.senderId
+            WHERE m.chatId = ?
+            ORDER BY m.createdAt DESC
             LIMIT ?
             """,
         (rs, rowNum) -> mapMessage(rs),
@@ -213,6 +214,18 @@ public class ChatDataService {
     jdbc.update("UPDATE users SET status = ? WHERE id = ?", status, userId);
   }
 
+  public Map<String, Object> userById(String userId) {
+    var users = jdbc.query(
+        "SELECT id, username, displayName, avatarUrl, status FROM users WHERE id = ? LIMIT 1",
+        this::mapUser,
+        userId
+    );
+    if (users.isEmpty()) {
+      throw new IllegalArgumentException("usuario no encontrado");
+    }
+    return users.get(0);
+  }
+
   public Map<String, Object> chatById(String chatId) {
     var chats = jdbc.query(
         "SELECT id, type, title, description FROM chats WHERE id = ?",
@@ -242,7 +255,12 @@ public class ChatDataService {
 
   public Map<String, Object> messageById(String messageId) {
     var messages = jdbc.query(
-        "SELECT id, chatId, senderId, kind, content, createdAt FROM messages WHERE id = ?",
+        """
+            SELECT m.id, m.chatId, m.senderId, u.displayName AS senderName, m.kind, m.content, m.createdAt
+            FROM messages m
+            JOIN users u ON u.id = m.senderId
+            WHERE m.id = ?
+            """,
         (rs, rowNum) -> mapMessage(rs),
         messageId
     );
@@ -267,6 +285,7 @@ public class ChatDataService {
     msg.put("id", rs.getString("id"));
     msg.put("chatId", rs.getString("chatId"));
     msg.put("senderId", rs.getString("senderId"));
+    msg.put("senderName", rs.getString("senderName"));
     msg.put("kind", rs.getString("kind"));
     msg.put("content", rs.getString("content"));
     msg.put("createdAt", rs.getLong("createdAt"));
@@ -275,7 +294,14 @@ public class ChatDataService {
 
   private Map<String, Object> lastMessage(String chatId) {
     var list = jdbc.query(
-        "SELECT id, chatId, senderId, kind, content, createdAt FROM messages WHERE chatId = ? ORDER BY createdAt DESC LIMIT 1",
+        """
+            SELECT m.id, m.chatId, m.senderId, u.displayName AS senderName, m.kind, m.content, m.createdAt
+            FROM messages m
+            JOIN users u ON u.id = m.senderId
+            WHERE m.chatId = ?
+            ORDER BY m.createdAt DESC
+            LIMIT 1
+            """,
         (rs, rowNum) -> mapMessage(rs),
         chatId
     );

@@ -8,18 +8,28 @@ interface GroupModalProps {
 }
 
 export default function GroupModal({ open, onClose }: GroupModalProps) {
-  const { createGroup } = useApp();
+  const { createGroup, allUsers, user } = useApp();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
 
   if (!open) return null;
 
   const handleCreate = () => {
     if (!title.trim()) return;
-    createGroup(title.trim(), description.trim() || undefined);
+    createGroup(title.trim(), description.trim() || undefined, selectedUsers);
     setTitle('');
     setDescription('');
+    setSelectedUsers([]);
     onClose();
+  };
+
+  const availableUsers = allUsers.filter((item) => item.id !== user?.id);
+
+  const toggleUser = (userId: string) => {
+    setSelectedUsers((prev) =>
+      prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId],
+    );
   };
 
   return (
@@ -67,6 +77,29 @@ export default function GroupModal({ open, onClose }: GroupModalProps) {
           >
             Crear grupo
           </button>
+
+          {availableUsers.length > 0 && (
+            <div>
+              <p className="block text-sm font-medium text-muted-foreground mb-2">Agregar miembros (opcional)</p>
+              <div className="max-h-40 overflow-y-auto space-y-1 pr-1">
+                {availableUsers.map((item) => (
+                  <button
+                    type="button"
+                    key={item.id}
+                    onClick={() => toggleUser(item.id)}
+                    className={`w-full px-3 py-2 rounded-lg text-left border transition-colors ${
+                      selectedUsers.includes(item.id)
+                        ? 'border-primary bg-primary/10 text-foreground'
+                        : 'border-border bg-muted/40 text-muted-foreground hover:bg-muted'
+                    }`}
+                  >
+                    <p className="text-sm font-medium">{item.displayName}</p>
+                    <p className="text-xs">@{item.username}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
